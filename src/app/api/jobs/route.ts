@@ -1,12 +1,63 @@
 import { prisma } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
+
+import type { NextRequest } from "next/server";
 
 /**
  * GET /api/jobs - Retrieve all jobs with optional filtering
+ *
+ * @param request - NextRequest object containing query parameters:
+ *
+ *   - Search: string - Search term for title, company, or description
+ *   - Page: number - Page number for pagination (default: 1)
+ *   - Limit: number - Number of items per page (default: 10)
+ *   - SortBy: 'createdAt' | 'title' | 'company' - Field to sort by (default: 'createdAt')
+ *   - Order: 'asc' | 'desc' - Sort order (default: 'desc')
+ *   - Location: string - Filter by location
+ *
+ * @returns - A Promise that resolves to a NextResponse object containing the jobs and pagination
+ *   metadata
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
 	try {
+		const { searchParams } = new URL(request.url);
+
+		// Parse query parameters
+		const search = searchParams.get("search");
+		const page = Math.max(1, Number(searchParams.get("page")) || 1);
+		const limit = Math.max(1, Math.min(50, Number(searchParams.get("limit")) || 10));
+		const sortBy = searchParams.get("sortBy") || "createdAt";
+		const order = searchParams.get("order")?.toLowerCase() === "asc" ? "asc" : "desc";
+		const location = searchParams.get("location");
+
+		// Calculate pagination
+		const skip = (page - 1) * limit;
+
+		// Build where clause for filtering
+		const where: Prisma.JobWhereInput = {
+			...(search ?
+				{
+					OR: [
+						{ title: { contains: search, mode: "insensitive" as Prisma.QueryMode } },
+						{ company: { contains: search, mode: "insensitive" as Prisma.QueryMode } },
+						{ description: { contains: search, mode: "insensitive" as Prisma.QueryMode } },
+					],
+				}
+			:	{}),
+			...(location ?
+				{
+					location: { contains: location, mode: "insensitive" as Prisma.QueryMode },
+				}
+			:	{}),
+		};
+
+		// Get total count for pagination
+		const total = await prisma.job.count({ where });
+
+		// Get filtered and paginated jobs
 		const jobs = await prisma.job.findMany({
+			where,
 			include: {
 				recruiter: {
 					select: {
@@ -18,23 +69,33 @@ export async function GET() {
 				},
 			},
 			orderBy: {
-				createdAt: "desc",
+				[sortBy]: order,
 			},
+			skip,
+			take: limit,
 		});
 
-		return NextResponse.json(jobs);
+		// Return response with pagination metadata
+		return NextResponse.json({
+			jobs,
+			pagination: {
+				total,
+				page,
+				limit,
+				totalPages: Math.ceil(total / limit),
+				hasMore: page * limit < total,
+			},
+		});
 	} catch (error) {
 		console.error("[JOBS_GET]", error);
 		return new NextResponse("Internal error", { status: 500 });
 	}
 }
 
-/**
- * POST /api/jobs - Create a new job posting
- */
-export async function POST(req: Request) {
+/** POST /api/jobs - Create a new job posting */
+export async function POST(request: NextRequest) {
 	try {
-		const body = await req.json();
+		const body = await request.json();
 		const { title, company, description, location, recruiterId } = body;
 
 		if (!title || !company || !description || !location || !recruiterId) {
