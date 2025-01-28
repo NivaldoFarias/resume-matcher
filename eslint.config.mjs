@@ -1,16 +1,48 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import eslint from "@eslint/js";
+import nextPlugin from "@next/eslint-plugin-next";
+import eslintPluginPrettier from "eslint-plugin-prettier/recommended";
+import globals from "globals";
+import tseslint from "typescript-eslint";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+export default tseslint.config(
+	eslintPluginPrettier,
+	{
+		files: ["**/*.{js,ts,jsx,tsx}"],
+		plugins: {
+			"@typescript-eslint": tseslint.plugin,
+			"@next/next": nextPlugin,
+		},
+		languageOptions: {
+			globals: {
+				...globals.node,
+				Bun: "readonly",
+			},
+			parser: tseslint.parser,
+			parserOptions: {
+				project: ["./tsconfig.json"],
+			},
+		},
+		rules: {
+			...nextPlugin.configs["core-web-vitals"].rules,
+			...nextPlugin.configs.recommended.rules,
+			...eslint.configs.recommended.rules,
+			"no-unused-vars": "off",
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
-];
-
-export default eslintConfig;
+			// typescript-eslint rules
+			"@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+			"@typescript-eslint/dot-notation": "off",
+		},
+	},
+	{
+		files: ["*.cjs"],
+		languageOptions: {
+			globals: globals.commonjs,
+		},
+	},
+	{
+		files: ["*.mjs"],
+		languageOptions: {
+			globals: globals.node,
+		},
+	},
+);
