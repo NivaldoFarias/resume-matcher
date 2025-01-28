@@ -1,3 +1,4 @@
+import { ErrorBoundary } from "@/components/error-boundary";
 import { Header } from "@/components/layout/header";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
@@ -12,7 +13,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
 	title: "Resume Matcher",
-	description: "Match resumes with job descriptions using AI",
+	description: "Match your resume with job descriptions",
 };
 
 /**
@@ -23,13 +24,15 @@ export const metadata: Metadata = {
  */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
-		<ClerkProvider>
-			<html lang="en">
+		<html lang="en">
+			<ClerkProvider>
 				<body className={inter.className}>
-					<Header />
-					<main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">{children}</main>
+					<ErrorBoundary>
+						<Header />
+						<main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">{children}</main>
+					</ErrorBoundary>
 				</body>
-			</html>
-		</ClerkProvider>
+			</ClerkProvider>
+		</html>
 	);
 }

@@ -45,4 +45,10 @@ export default tseslint.config(
 			globals: globals.node,
 		},
 	},
+	{
+		files: ["**/*.{jsx,tsx}"],
+		languageOptions: {
+			globals: globals.browser,
+		},
+	},
 );

@@ -4,6 +4,16 @@ import { redirect } from "next/navigation";
 
 import { setUserRole } from "./_actions";
 
+async function handleSetRole(role: UserRole) {
+	"use server";
+
+	const result = await setUserRole(role);
+
+	if (result.success) {
+		redirect("/");
+	}
+}
+
 /**
  * Onboarding page for role selection after first sign-in
  *
@@ -22,16 +32,6 @@ export default async function OnboardingPage() {
 		redirect("/");
 	}
 
-	async function handleSetRole(role: UserRole) {
-		"use server";
-
-		const result = await setUserRole(role);
-
-		if (result.success) {
-			redirect("/");
-		}
-	}
-
 	return (
 		<div className="mx-auto max-w-2xl">
 			<div className="rounded-lg border border-gray-200 bg-white p-6">
@@ -39,7 +39,7 @@ export default async function OnboardingPage() {
 				<p className="mt-2 text-gray-600">Select your role to get started with Resume Matcher.</p>
 
 				<div className="mt-8 grid gap-4">
-					<form action={() => handleSetRole("CANDIDATE")}>
+					<form action={handleSetRole.bind(null, "CANDIDATE")}>
 						<button
 							type="submit"
 							className="w-full rounded-lg border border-blue-200 bg-blue-50 p-4 text-left hover:bg-blue-100"
@@ -51,7 +51,7 @@ export default async function OnboardingPage() {
 						</button>
 					</form>
 
-					<form action={() => handleSetRole("RECRUITER")}>
+					<form action={handleSetRole.bind(null, "RECRUITER")}>
 						<button
 							type="submit"
 							className="w-full rounded-lg border border-green-200 bg-green-50 p-4 text-left hover:bg-green-100"

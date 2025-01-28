@@ -1,9 +1,7 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-/**
- * GET /api/resumes - Retrieve all resumes with optional filtering
- */
+/** GET /api/resumes - Retrieve all resumes with optional filtering */
 export async function GET() {
 	try {
 		const resumes = await prisma.resume.findMany({
@@ -29,9 +27,7 @@ export async function GET() {
 	}
 }
 
-/**
- * POST /api/resumes - Create a new resume entry
- */
+/** POST /api/resumes - Create a new resume entry */
 export async function POST(req: Request) {
 	try {
 		const body = await req.json();
