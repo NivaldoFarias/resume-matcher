@@ -1,83 +1,49 @@
-import Image from "next/image";
+import { RoleGate } from "@/components/auth/role-gate";
+import { getAuthStatus } from "@/lib/auth";
 
-export default function Home() {
+/**
+ * Home page component with role-protected sections
+ *
+ * @returns The home page with different content for each role
+ */
+export default async function HomePage() {
+	const { user } = await getAuthStatus();
+
 	return (
-		<div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-			<main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-				<Image
-					className="dark:invert"
-					src="/next.svg"
-					alt="Next.js logo"
-					width={180}
-					height={38}
-					priority
-				/>
-				<ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-					<li className="mb-2">
-						Get started by editing{" "}
-						<code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-							src/app/page.tsx
-						</code>
-						.
-					</li>
-					<li>Save and see your changes instantly.</li>
-				</ol>
+		<div className="space-y-8">
+			<section className="rounded-lg border border-gray-200 bg-white p-6">
+				<h1 className="text-2xl font-bold text-gray-900">Welcome to Resume Matcher</h1>
+				<p className="mt-2 text-gray-600">
+					{user ?
+						"You are signed in. Check out the role-specific content below."
+					:	"Sign in to access role-specific features."}
+				</p>
+			</section>
 
-				<div className="flex gap-4 items-center flex-col sm:flex-row">
-					<a
-						className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-						href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						<Image
-							className="dark:invert"
-							src="/vercel.svg"
-							alt="Vercel logomark"
-							width={20}
-							height={20}
-						/>
-						Deploy now
-					</a>
-					<a
-						className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-						href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						Read our docs
-					</a>
+			{user && (
+				<div className="grid gap-6 md:grid-cols-2">
+					<RoleGate allowedRole="CANDIDATE">
+						<section className="rounded-lg border border-blue-200 bg-blue-50 p-6">
+							<h2 className="text-xl font-semibold text-blue-900">Candidate Dashboard</h2>
+							<p className="mt-2 text-blue-700">Upload your resume and find matching jobs.</p>
+						</section>
+					</RoleGate>
+
+					<RoleGate allowedRole="RECRUITER">
+						<section className="rounded-lg border border-green-200 bg-green-50 p-6">
+							<h2 className="text-xl font-semibold text-green-900">Recruiter Dashboard</h2>
+							<p className="mt-2 text-green-700">Post jobs and find matching candidates.</p>
+						</section>
+					</RoleGate>
+
+					<RoleGate allowedRole="ADMIN">
+						<section className="rounded-lg border border-purple-200 bg-purple-50 p-6">
+							<h2 className="text-xl font-semibold text-purple-900">Admin Dashboard</h2>
+							<p className="mt-2 text-purple-700">Manage users and system settings.</p>
+						</section>
+					</RoleGate>
 				</div>
-			</main>
-			<footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-				<a
-					className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-					href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					<Image aria-hidden src="/file.svg" alt="File icon" width={16} height={16} />
-					Learn
-				</a>
-				<a
-					className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-					href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					<Image aria-hidden src="/window.svg" alt="Window icon" width={16} height={16} />
-					Examples
-				</a>
-				<a
-					className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-					href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					<Image aria-hidden src="/globe.svg" alt="Globe icon" width={16} height={16} />
-					Go to nextjs.org →
-				</a>
-			</footer>
+			)}
 		</div>
 	);
 }
