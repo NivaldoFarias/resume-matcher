@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum UserRole {
+  CANDIDATE
+  RECRUITER
+}
+
+enum JobStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+  ARCHIVED
+}
+
+enum MatchStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+// Models
+model User {
+  id        String   @id
+  email     String   @unique
+  role      UserRole
+  firstName String?
+  lastName  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations based on role
+  postedJobs Job[]   @relation("RecruiterJobs")
+  resume     Resume? @relation("CandidateResume")
+  matches    Match[] @relation("CandidateMatches")
+
+  @@index([email])
+  @@index([role])
+}
+
+model Job {
+  id          String    @id @default(cuid())
+  title       String
+  company     String
+  description String
+  location    String
+  status      JobStatus @default(DRAFT)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  recruiter   User    @relation("RecruiterJobs", fields: [recruiterId], references: [id])
+  recruiterId String
+  matches     Match[] @relation("JobMatches")
+
+  @@index([recruiterId])
+  @@index([status])
+}
+
+model Resume {
+  id        String   @id @default(cuid())
+  fileUrl   String
+  fileName  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  candidate   User    @relation("CandidateResume", fields: [candidateId], references: [id])
+  candidateId String  @unique
+  matches     Match[] @relation("ResumeMatches")
+
+  @@index([candidateId])
+}
+
+model Match {
+  id        String      @id @default(cuid())
+  status    MatchStatus @default(PENDING)
+  score     Float?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  // Relations
+  job         Job    @relation("JobMatches", fields: [jobId], references: [id])
+  jobId       String
+  resume      Resume @relation("ResumeMatches", fields: [resumeId], references: [id])
+  resumeId    String
+  candidate   User   @relation("CandidateMatches", fields: [candidateId], references: [id])
+  candidateId String
+
+  @@unique([jobId, resumeId])
+  @@index([jobId])
+  @@index([resumeId])
+  @@index([candidateId])
+  @@index([status])
+}
