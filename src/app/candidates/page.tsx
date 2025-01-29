@@ -1,8 +1,9 @@
-import { RoleGate } from "@/components/auth/role-gate";
-import { Skeleton } from "@/components/ui/skeleton";
-import { auth } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+
+import { RoleGate } from "@/components/auth/role-gate";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { getCandidates } from "./_actions";
 import { columns } from "./columns";
@@ -14,11 +15,9 @@ import { DataTable } from "./data-table";
  * @returns The candidates page component with data table and loading states
  */
 export default async function CandidatesPage() {
-	const { userId } = await auth();
+	const user = await currentUser();
 
-	if (!userId) {
-		redirect("/sign-in");
-	}
+	if (!user) redirect("/sign-in");
 
 	const candidates = await getCandidates();
 
@@ -36,21 +35,21 @@ export default async function CandidatesPage() {
 			</RoleGate>
 		</div>
 	);
-}
 
-/**
- * Skeleton loader component for the candidates table
- *
- * @returns A skeleton UI component showing loading state
- */
-function CandidatesTableSkeleton() {
-	return (
-		<div className="space-y-4">
-			<div className="space-y-2">
-				{Array.from({ length: 5 }).map((_, i) => (
-					<Skeleton key={i} className="h-12 w-full" />
-				))}
+	/**
+	 * Skeleton loader component for the candidates table
+	 *
+	 * @returns A skeleton UI component showing loading state
+	 */
+	function CandidatesTableSkeleton() {
+		return (
+			<div className="space-y-4">
+				<div className="space-y-2">
+					{Array.from({ length: 5 }).map((_, i) => (
+						<Skeleton key={i} className="h-12 w-full" />
+					))}
+				</div>
 			</div>
-		</div>
-	);
+		);
+	}
 }

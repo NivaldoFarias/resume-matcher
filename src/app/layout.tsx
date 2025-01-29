@@ -1,9 +1,10 @@
-import { ErrorBoundary } from "@/components/error-boundary";
-import { Header } from "@/components/layout/header";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 
 import type { Metadata } from "next";
+
+import { ErrorBoundary } from "@/components/error-boundary";
+import { Header } from "@/components/layout/header";
 
 import "./globals.css";
 

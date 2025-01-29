@@ -1,6 +1,7 @@
-import { type UserRole } from "@/lib/auth";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+
+import { type UserRole } from "@/lib/auth";
 
 import { setUserRole } from "./_actions";
 
@@ -20,17 +21,10 @@ async function handleSetRole(role: UserRole) {
  * @returns The onboarding page component
  */
 export default async function OnboardingPage() {
-	const { userId } = await auth();
 	const user = await currentUser();
 
-	if (!userId || !user) {
-		redirect("/sign-in");
-	}
-
-	// If user already has a role, redirect to home
-	if (user.publicMetadata?.role) {
-		redirect("/");
-	}
+	if (!user) redirect("/sign-in");
+	else if (user.publicMetadata?.role) redirect("/");
 
 	return (
 		<div className="mx-auto max-w-2xl">

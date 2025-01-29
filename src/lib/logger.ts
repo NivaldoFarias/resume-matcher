@@ -1,3 +1,5 @@
+import pc from "picocolors";
+
 type LogLevel = "debug" | "info" | "warn" | "error";
 
 /** Represents the structure of a log entry */
@@ -9,16 +11,76 @@ interface LogEntry {
 	error?: Error;
 }
 
+/** Color configuration for different log levels */
+const LOG_COLORS = {
+	debug: {
+		level: pc.magenta,
+		timestamp: pc.gray,
+		message: pc.white,
+		context: pc.cyan,
+	},
+	info: {
+		level: pc.blue,
+		timestamp: pc.gray,
+		message: pc.white,
+		context: pc.cyan,
+	},
+	warn: {
+		level: pc.yellow,
+		timestamp: pc.gray,
+		message: pc.yellow,
+		context: pc.cyan,
+	},
+	error: {
+		level: pc.red,
+		timestamp: pc.gray,
+		message: pc.red,
+		context: pc.cyan,
+	},
+} as const;
+
 /** Creates a formatted timestamp for logging */
 const getTimestamp = () => new Date().toISOString();
 
-/** Formats a log entry into a readable string */
+/** Formats a context object into a colored string */
+const formatContext = (context?: Record<string, unknown>): string => {
+	if (!context || Object.keys(context).length === 0) return "";
+
+	try {
+		return ` ${pc.gray("•")} ${pc.cyan(JSON.stringify(context))}`;
+	} catch {
+		return ` ${pc.gray("•")} ${pc.red("[Invalid Context]")}`;
+	}
+};
+
+/** Formats an error object into a colored string */
+const formatError = (error?: Error): string => {
+	if (!error) return "";
+
+	const errorMessage = error.message || "Unknown error";
+	const errorStack = error.stack || "";
+
+	return `\n${pc.red("Error:")} ${errorMessage}\n${pc.gray("Stack:")} ${errorStack}`;
+};
+
+/** Formats a log entry into a readable string with colors */
 const formatLogEntry = (entry: LogEntry): string => {
 	const { level, message, timestamp, context, error } = entry;
-	const contextStr = context ? `\nContext: ${JSON.stringify(context, null, 2)}` : "";
-	const errorStr = error ? `\nError: ${error.message}\nStack: ${error.stack}` : "";
+	const colors = LOG_COLORS[level];
 
-	return `[${timestamp}] ${level.toUpperCase()}: ${message}${contextStr}${errorStr}`;
+	const timestampStr = colors.timestamp(`[${timestamp}]`);
+	const levelStr = colors.level(level.toUpperCase().padEnd(5));
+	const messageStr = colors.message(message);
+	const contextStr = formatContext(context);
+	const errorStr = formatError(error);
+
+	// For debug level, create a compact single-line format
+	if (level === "debug") {
+		return `${timestampStr} ${levelStr} ${messageStr}${contextStr}`;
+	}
+
+	// Multi-line format for other log levels
+	return `${timestampStr} ${levelStr} ${messageStr}${contextStr}${errorStr}`;
 };
 
 /** Logger class for handling application logging */

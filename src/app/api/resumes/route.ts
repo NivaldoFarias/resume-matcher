@@ -1,10 +1,14 @@
-import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
+
+import type { Resume } from "@prisma/client";
+import type { NextRequest } from "next/server";
+
+import { db } from "@/lib/db";
 
 /** GET /api/resumes - Retrieve all resumes with optional filtering */
 export async function GET() {
 	try {
-		const resumes = await prisma.resume.findMany({
+		const resumes = await db.resume.findMany({
 			include: {
 				candidate: {
 					select: {
@@ -28,9 +32,9 @@ export async function GET() {
 }
 
 /** POST /api/resumes - Create a new resume entry */
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
 	try {
-		const body = await req.json();
+		const body = (await request.json()) as Partial<Resume>;
 		const { fileUrl, fileName, candidateId } = body;
 
 		if (!fileUrl || !fileName || !candidateId) {
@@ -38,7 +42,7 @@ export async function POST(req: Request) {
 		}
 
 		// Check if candidate already has a resume (since it's a 1:1 relationship)
-		const existingResume = await prisma.resume.findUnique({
+		const existingResume = await db.resume.findUnique({
 			where: { candidateId },
 		});
 
@@ -46,7 +50,7 @@ export async function POST(req: Request) {
 			return new NextResponse("Candidate already has a resume", { status: 400 });
 		}
 
-		const resume = await prisma.resume.create({
+		const resume = await db.resume.create({
 			data: {
 				fileUrl,
 				fileName,

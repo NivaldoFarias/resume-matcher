@@ -1,5 +1,6 @@
-import { logger } from "@/lib/logger";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+
+import { logger } from "@/lib/logger";
 
 /** Defines the list of public routes that don't require authentication using pattern matching */
 const publicPatterns = [

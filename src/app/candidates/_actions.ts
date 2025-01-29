@@ -1,5 +1,8 @@
+import { currentUser } from "@clerk/nextjs/server";
+
+import type { Candidate } from "@prisma/client";
+
 import { db } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
 
 /**
  * Fetches all candidates from the database
@@ -7,11 +10,9 @@ import { auth } from "@clerk/nextjs/server";
  * @returns An array of candidates with their information
  */
 export async function getCandidates() {
-	const { userId } = await auth();
+	const user = await currentUser();
 
-	if (!userId) {
-		throw new Error("Unauthorized");
-	}
+	if (!user) throw new Error("Unauthorized");
 
 	try {
 		const candidates = await db.candidate.findMany({
@@ -28,7 +29,7 @@ export async function getCandidates() {
 			},
 		});
 
-		return candidates;
+		return candidates as Candidate[];
 	} catch (error) {
 		console.error("Error fetching candidates:", error);
 		throw new Error("Failed to fetch candidates");
@@ -43,11 +44,9 @@ export async function getCandidates() {
  * @returns The updated candidate
  */
 export async function updateCandidateStatus(candidateId: string, status: string) {
-	const { userId } = await auth();
+	const user = await currentUser();
 
-	if (!userId) {
-		throw new Error("Unauthorized");
-	}
+	if (!user) throw new Error("Unauthorized");
 
 	try {
 		const updatedCandidate = await db.candidate.update({

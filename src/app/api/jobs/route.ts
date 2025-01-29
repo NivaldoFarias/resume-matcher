@@ -1,8 +1,10 @@
-import { prisma } from "@/lib/db";
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 
+import type { Job } from "@prisma/client";
 import type { NextRequest } from "next/server";
+
+import { db } from "@/lib/db";
 
 /**
  * GET /api/jobs - Retrieve all jobs with optional filtering
@@ -53,10 +55,10 @@ export async function GET(request: NextRequest) {
 		};
 
 		// Get total count for pagination
-		const total = await prisma.job.count({ where });
+		const total = await db.job.count({ where });
 
 		// Get filtered and paginated jobs
-		const jobs = await prisma.job.findMany({
+		const jobs = await db.job.findMany({
 			where,
 			include: {
 				recruiter: {
@@ -95,14 +97,14 @@ export async function GET(request: NextRequest) {
 /** POST /api/jobs - Create a new job posting */
 export async function POST(request: NextRequest) {
 	try {
-		const body = await request.json();
+		const body = (await request.json()) as Partial<Job>;
 		const { title, company, description, location, recruiterId } = body;
 
 		if (!title || !company || !description || !location || !recruiterId) {
 			return new NextResponse("Missing required fields", { status: 400 });
 		}
 
-		const job = await prisma.job.create({
+		const job = await db.job.create({
 			data: {
 				title,
 				company,

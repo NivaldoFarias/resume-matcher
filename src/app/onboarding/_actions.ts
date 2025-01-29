@@ -1,5 +1,6 @@
-import { type UserRole } from "@/lib/auth";
 import { auth, clerkClient } from "@clerk/nextjs/server";
+
+import { type UserRole } from "@/lib/auth";
 
 /**
  * Updates the user's role in Clerk's public metadata

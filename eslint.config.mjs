@@ -1,34 +1,35 @@
+import { FlatCompat } from "@eslint/eslintrc";
 import eslint from "@eslint/js";
-import nextPlugin from "@next/eslint-plugin-next";
 import eslintPluginPrettier from "eslint-plugin-prettier/recommended";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
 	eslintPluginPrettier,
+	eslint.configs.recommended,
+	tseslint.configs.recommendedTypeChecked,
+	new FlatCompat({ baseDirectory: import.meta.dirname }).config({
+		extends: ["next/core-web-vitals", "next/typescript"],
+		rules: {
+			"react/no-unescaped-entities": "off",
+		},
+	}),
 	{
 		files: ["**/*.{js,ts,jsx,tsx}"],
 		plugins: {
 			"@typescript-eslint": tseslint.plugin,
-			"@next/next": nextPlugin,
 		},
 		languageOptions: {
-			globals: {
-				...globals.node,
-				Bun: "readonly",
-			},
+			globals: globals.node,
 			parser: tseslint.parser,
 			parserOptions: {
 				project: ["./tsconfig.json"],
 			},
 		},
 		rules: {
-			...nextPlugin.configs["core-web-vitals"].rules,
-			...nextPlugin.configs.recommended.rules,
-			...eslint.configs.recommended.rules,
+			"no-var": "off",
 			"no-unused-vars": "off",
 
-			// typescript-eslint rules
 			"@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
 			"@typescript-eslint/dot-notation": "off",
 		},

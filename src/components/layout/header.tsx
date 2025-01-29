@@ -1,6 +1,7 @@
-import { getAuthStatus } from "@/lib/auth";
 import { SignInButton, SignOutButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
+
+import { getAuthStatus } from "@/lib/auth";
 
 /**
  * Main application header with authentication controls and navigation

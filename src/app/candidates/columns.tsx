@@ -1,8 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { Candidate } from "@/lib/types";
-import { formatDate } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
+
+import type { Candidate } from "@prisma/client";
+
+import { Button } from "@/components/ui/button";
+import { formatDate } from "@/lib/utils";
 
 /**
  * Column definitions for the candidates table

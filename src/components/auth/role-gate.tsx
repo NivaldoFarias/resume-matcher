@@ -1,8 +1,9 @@
-import { getUserRole } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 import type { UserRole } from "@/lib/auth";
 import type React from "react";
+
+import { getUserRole } from "@/lib/auth";
 
 interface RoleGateProps {
 	children: React.ReactNode;
@@ -19,13 +20,16 @@ interface RoleGateProps {
 export async function RoleGate({ children, allowedRole, fallback }: RoleGateProps) {
 	const role = await getUserRole();
 
-	if (!role) {
-		redirect("/sign-in");
-	}
-
-	if (role !== allowedRole) {
-		return fallback || null;
-	}
+	if (!role) redirect("/sign-in");
+	else if (role !== allowedRole) return fallback || renderFallback();
 
 	return children;
+
+	function renderFallback() {
+		return (
+			<div className="flex flex-col items-center justify-center h-full text-lg">
+				You are not authorized to view this page.
+			</div>
+		);
+	}
 }
