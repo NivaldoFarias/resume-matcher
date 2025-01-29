@@ -21,15 +21,7 @@ export async function RoleGate({ children, allowedRole, fallback }: RoleGateProp
 	const role = await getUserRole();
 
 	if (!role) redirect("/sign-in");
-	else if (role !== allowedRole) return fallback || renderFallback();
+	else if (role !== allowedRole) return fallback || null;
 
 	return children;
-
-	function renderFallback() {
-		return (
-			<div className="flex flex-col items-center justify-center h-full text-lg">
-				You are not authorized to view this page.
-			</div>
-		);
-	}
 }

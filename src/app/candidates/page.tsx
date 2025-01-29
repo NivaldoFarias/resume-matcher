@@ -23,7 +23,14 @@ export default async function CandidatesPage() {
 
 	return (
 		<div className="container mx-auto py-10">
-			<RoleGate allowedRole="ADMIN">
+			<RoleGate
+				allowedRole="ADMIN"
+				fallback={
+					<div className="flex flex-col items-center justify-center h-full text-lg">
+						You are not authorized to view this page.
+					</div>
+				}
+			>
 				<div className="flex flex-col gap-4">
 					<div className="flex items-center justify-between">
 						<h1 className="text-3xl font-bold tracking-tight">Candidates</h1>
