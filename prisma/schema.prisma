@@ -11,6 +11,7 @@ datasource db {
 enum UserRole {
   CANDIDATE
   RECRUITER
+  ADMIN
 }
 
 enum JobStatus {
@@ -28,18 +29,20 @@ enum MatchStatus {
 
 // Models
 model User {
-  id        String   @id
+  id        String   @id @default(cuid())
   email     String   @unique
   role      UserRole
   firstName String?
   lastName  String?
+  clerkId   String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations based on role
-  postedJobs Job[]   @relation("RecruiterJobs")
-  resume     Resume? @relation("CandidateResume")
-  matches    Match[] @relation("CandidateMatches")
+  postedJobs Job[]    @relation("RecruiterJobs")
+  resume     Resume?  @relation("CandidateResume")
+  matches    Match[]  @relation("CandidateMatches")
+  profile    Profile?
 
   @@index([email])
   @@index([role])
@@ -101,12 +104,25 @@ model Match {
   @@index([status])
 }
 
-model Candidate {
+model Profile {
   id        String   @id @default(cuid())
+  userId    String   @unique
   name      String
   email     String   @unique
   phone     String?
-  status    String   @default("NEW")
+  bio       String?  @db.Text
+  location  String?
+  website   String?
+  company   String? // For recruiters
+  position  String? // Current position or desired position
+  status    String   @default("ACTIVE")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([email])
+  @@index([status])
 }

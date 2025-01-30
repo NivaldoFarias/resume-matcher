@@ -2,7 +2,10 @@ import { WebhookEvent } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { Webhook } from "svix";
 
+import type { UserCreatedWebhook } from "@/schemas/webhooks/clerk";
+
 import { db } from "@/lib/db";
+import { userWebhookSchema } from "@/schemas/webhooks/clerk";
 
 /**
  * Handles Clerk webhook events for user management
@@ -33,6 +36,23 @@ export async function POST(request: Request) {
 
 	// Get the webhook body
 	const payload = await request.json();
+
+	const result = userWebhookSchema.safeParse(payload);
+
+	if (!result.success) {
+		return new Response("Invalid webhook payload", { status: 400 });
+	}
+
+	switch (result.data.type) {
+		case "user.created":
+			break;
+		case "user.updated":
+		case "user.deleted":
+		case "user.signed_in":
+		default:
+			break;
+	}
+
 	const body = JSON.stringify(payload);
 
 	let event: WebhookEvent;
@@ -49,10 +69,11 @@ export async function POST(request: Request) {
 		return new Response("Invalid signature", { status: 400 });
 	}
 
-	// Handle the webhook event
-	if (event.type === "user.created") {
-		// Create a new candidate record
-		await db.candidate.create({
+	return new Response("Webhook processed", { status: 200 });
+
+	async function handleUserCreated(event: UserCreatedWebhook) {
+		// Create a new user record, then a candidate record
+		await db.user.create({
 			data: {
 				clerkId: event.data.id,
 				email: event.data.email_addresses[0]?.email_address,
@@ -62,6 +83,4 @@ export async function POST(request: Request) {
 			},
 		});
 	}
-
-	return new Response("Webhook processed", { status: 200 });
 }
