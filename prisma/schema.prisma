@@ -31,10 +31,11 @@ enum MatchStatus {
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
-  role      UserRole
+  role      UserRole @default(CANDIDATE)
   firstName String?
   lastName  String?
   clerkId   String   @unique
+  deleted   Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -54,6 +55,7 @@ model Job {
   company     String
   description String
   location    String
+  deleted     Boolean   @default(false)
   status      JobStatus @default(DRAFT)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -71,6 +73,7 @@ model Resume {
   id        String   @id @default(cuid())
   fileUrl   String
   fileName  String
+  deleted   Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -86,6 +89,7 @@ model Match {
   id        String      @id @default(cuid())
   status    MatchStatus @default(PENDING)
   score     Float?
+  deleted   Boolean     @default(false)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
@@ -107,6 +111,7 @@ model Match {
 model Profile {
   id        String   @id @default(cuid())
   userId    String   @unique
+  deleted   Boolean  @default(false)
   name      String
   email     String   @unique
   phone     String?
