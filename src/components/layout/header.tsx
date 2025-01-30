@@ -1,6 +1,7 @@
-import { SignInButton, SignOutButton, UserButton } from "@clerk/nextjs";
+import { SignInButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import { getAuthStatus } from "@/lib/auth";
 
 /**
@@ -35,12 +36,10 @@ export async function Header() {
 					{isAuthenticated ?
 						<>
 							<span className="text-sm text-gray-700">{user?.role?.toLowerCase()}</span>
-							<UserButton afterSignOutUrl="/" />
+							<UserButton />
 						</>
 					:	<SignInButton mode="modal">
-							<button className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
-								Sign In
-							</button>
+							<Button>Sign In</Button>
 						</SignInButton>
 					}
 				</div>

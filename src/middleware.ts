@@ -8,6 +8,7 @@ const publicPatterns = [
 	"/sign-in(.*)",
 	"/onboarding",
 	"/api/webhooks/clerk",
+
 	// Static files
 	"/favicon.ico",
 	"/robots.txt",
@@ -21,30 +22,22 @@ export default clerkMiddleware(
 	async (auth, request) => {
 		try {
 			const url = new URL(request.url);
-			logger.debug("Processing request", {
-				url: url.pathname,
-				method: request.method,
-			});
+			logger.debug("Processing request", { url: url.pathname, method: request.method });
 
 			// For non-public routes, protect them by requiring authentication
 			if (!isPublicRoute(request)) {
 				logger.debug("Protecting non-public route", { url: url.pathname });
+
 				await auth.protect();
 			}
 
-			const { userId, redirectToSignIn } = await auth();
+			const { userId } = await auth();
 
-			if (!userId && isPublicRoute(request)) {
-				logger.info("Redirecting unauthenticated user to sign in", {
-					url: url.pathname,
-				});
-				return redirectToSignIn();
+			if (!userId) {
+				logger.info("Redirecting unauthenticated user to sign in", { url: url.pathname });
+			} else {
+				logger.debug("Request processed successfully", { url: url.pathname, userId });
 			}
-
-			logger.debug("Request processed successfully", {
-				url: url.pathname,
-				userId,
-			});
 		} catch (error) {
 			logger.error(
 				"Error processing request",
@@ -54,7 +47,7 @@ export default clerkMiddleware(
 			throw error;
 		}
 	},
-	{ debug: false }, // We'll use our own logger instead
+	{ debug: process.env.NODE_ENV === "development" && process.env.CLERK_DEBUG === "true" },
 );
 
 export const config = {
