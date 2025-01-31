@@ -1,12 +1,9 @@
 import { headers } from "next/headers";
 
-import {
-	handleUserCreated,
-	handleUserDeleted,
-	handleUserUpdated,
-} from "@/handlers/webhooks/clerk/user";
 import { verifySignature } from "@/lib/verify-webhook";
-import { userWebhookSchema } from "@/schemas/webhooks/clerk";
+
+import { handleUserCreated, handleUserDeleted, handleUserUpdated } from "./handlers";
+import { userWebhookSchema } from "./schemas";
 
 /**
  * Handles Clerk webhook events for user management

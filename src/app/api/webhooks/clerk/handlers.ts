@@ -1,8 +1,4 @@
-import type {
-	UserCreatedWebhook,
-	UserDeletedWebhook,
-	UserUpdatedWebhook,
-} from "@/schemas/webhooks/clerk";
+import type { UserCreatedWebhook, UserDeletedWebhook, UserUpdatedWebhook } from "./schemas";
 
 import { db } from "@/lib/db";
 
