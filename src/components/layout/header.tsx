@@ -1,4 +1,4 @@
-import { SignInButton, UserButton } from "@clerk/nextjs";
+import { SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -38,9 +38,15 @@ export async function Header() {
 							<span className="text-sm text-gray-700">{user?.role?.toLowerCase()}</span>
 							<UserButton />
 						</>
-					:	<SignInButton mode="modal">
-							<Button>Sign In</Button>
-						</SignInButton>
+					:	<>
+							<Button>Placeholder</Button>
+							{/* <SignInButton mode="modal">
+								<Button className="bg-zinc-200 text-zinc-900 hover:bg-zinc-200">Sign In</Button>
+							</SignInButton>
+							<SignUpButton mode="modal">
+								<Button>Sign Up</Button>
+							</SignUpButton> */}
+						</>
 					}
 				</div>
 			</div>

@@ -6,7 +6,7 @@ import { logger } from "@/lib/logger";
 const publicPatterns = [
 	"/",
 	"/sign-in(.*)",
-	"/onboarding",
+	"/onboarding(.*)",
 	"/api/webhooks/clerk",
 
 	// Static files
@@ -22,22 +22,13 @@ export default clerkMiddleware(
 	async (auth, request) => {
 		try {
 			const url = new URL(request.url);
-			logger.debug("Processing request", { url: url.pathname, method: request.method });
 
 			// For non-public routes, protect them by requiring authentication
 			if (!isPublicRoute(request)) {
-				logger.debug("Protecting non-public route", { url: url.pathname });
-
 				await auth.protect();
 			}
 
 			const { userId } = await auth();
-
-			if (!userId) {
-				logger.info("Redirecting unauthenticated user to sign in", { url: url.pathname });
-			} else {
-				logger.debug("Request processed successfully", { url: url.pathname, userId });
-			}
 		} catch (error) {
 			logger.error(
 				"Error processing request",

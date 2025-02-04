@@ -23,8 +23,8 @@ async function handleSetRole(role: UserRole) {
 export default async function OnboardingPage() {
 	const user = await currentUser();
 
-	if (!user) redirect("/sign-in");
-	else if (user.publicMetadata?.role) redirect("/");
+	// if (!user) redirect("/sign-in");
+	// if (user?.publicMetadata?.role) redirect("/");
 
 	return (
 		<div className="mx-auto max-w-2xl">
